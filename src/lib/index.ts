@@ -1,4 +1,4 @@
-export const apiUrl = "http://89.169.172.143:8000/"
+export const apiUrl = "http://51.250.109.147:8000"
 export let token: string | null = null;
 export async function login(username: string, password:string){
   let promise =  fetch(`${apiUrl}/login`,{

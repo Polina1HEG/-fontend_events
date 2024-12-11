@@ -2,7 +2,9 @@
 	import { onMount } from "svelte";
 	import { goto } from "$app/navigation";
 	import { apiUrl } from "$lib/index";
+	import axios from "axios";
 	let objects: any[];
+	objects = [];
 	async function fetchObjects() {
 		try {
 			const response = await fetch(`${apiUrl}`, {
@@ -10,25 +12,17 @@
 				method: "GET",
 				headers: { "Content-Type": "application/json" }
 			});
-			// if (!response.ok) {
-			// 	throw new Error(`Ошибка ${response.status}  ${response.statusText}`);
-			// }
-			// const text = await response.text();
-			// if (!text) {
-			// 	throw new Error("Ответ от сервера пустой");
-			// }
 			objects = await response.json();
-
-			// const data = JSON.parse(text);
-			// console.log(`Полученные данные: ${data}`);
-			// return data;
 		} catch (error) {
 			console.error("Ошибка загрузки", error);
 			throw error;
 		}
 	}
+	let activeButton: string = "events_main";
+	function setActiveButton(button: string) {
+		activeButton = button;
+	}
 
-	let selecte_tag = "";
 	onMount(async () => {
 		await fetchObjects();
 	});
@@ -37,11 +31,14 @@
 		goto("/create_event");
 	}
 
-	function goToObjectPage(id) {
+	function goToObjectPage(id: number) {
 		goto(`/${id}`);
 	}
+	function goToObjectPageMore(id: number) {
+		goto(`/${id}/more`);
+	}
 
-	async function deleteEvent(id) {
+	async function deleteEvent(id: number) {
 		try {
 			const response = await fetch(`${apiUrl}${id}`, {
 				method: "DELETE",
@@ -61,64 +58,171 @@
 
 <header>
 	<div class="header">
-		<div class="logo"><img src="logo.svg" /></div>
+		<div class="logo"><img src="logo.svg" alt="ITAM" /></div>
 		<nav>
-			<button class="nav-btn">Мероприятия</button>
-			<button class="nav-btn">Календарь</button>
-			<div class="avatar"><img src="avatar.svg" /></div>
+			<button
+				class="nav-btn {activeButton === 'events_main' ? 'active' : ''}"
+				on:click={() => setActiveButton("events_main")}>Мероприятия</button
+			>
+			<button
+				class="nav-btn {activeButton === 'admin' ? 'active' : ''}"
+				on:click={() => setActiveButton("admin")}>Админ-панель</button
+			>
+			<div class="avatar"><img src="avatar.svg" alt="avatar" /></div>
 		</nav>
 	</div>
 </header>
+
 <main>
-	<h1>Мероприятия</h1>
-	<div class="filter-bar">
-		<select id="tag_selected" bind:value={selecte_tag}>
-			<option value="">Все категории</option>
-		</select>
-		<select>
-			<option selected>Формат проведения</option>
-			<option>Онлайн</option>
-			<option>Офлайн</option>
-		</select>
-		<input type="text" placeholder="Поиск..." />
-	</div>
-	<button on:click={goToAddPage}>Добавить событие</button>
-	<ul>
-		{#each objects as obj (obj.id)}
-			<div class="card">
-				<li on:click={() => goToObjectPage(obj.id)}>
-					<span class="event-tag">{obj.tags}</span> <br />
-					<h2>{obj.name}</h2>
-					<p>{obj.content}</p>
-					<small>{obj.start_datetime}</small>
-				</li>
-				<button on:click={() => deleteEvent(obj.id)}><img src="trash.svg" /> </button>
+	{#if activeButton === "admin"}
+		<h1>Админ-панель</h1>
+		<div class="container">
+			<div class="controls">
+				<div class="dropdown">
+					<select>
+						<option>Выбрать категорию</option>
+					</select>
+				</div>
+				<div class="dropdown">
+					<select>
+						<option>Формат проведения</option>
+					</select>
+				</div>
+				<input type="text" placeholder="Поиск" />
 			</div>
-		{/each}
-	</ul>
+			<button on:click={goToAddPage} class="goAdd">+ Добавить событие</button>
+		</div>
+		<table class="super_title">
+			<thead>
+				<tr>
+					<th>Название</th>
+					<th>Дата события</th>
+					<th>Статус</th>
+					<th>Изменить</th>
+				</tr>
+			</thead>
+		</table>
+		<table>
+			<tbody>
+				{#each objects as obj (obj.id)}
+					<tr>
+						<td class="event-tag">{obj.name}</td>
+						<td>{obj.start_datetime}</td>
+						<td>
+							<select>
+								<option>Опубликовано</option>
+							</select>
+						</td>
+						<td>
+							<button on:click={() => goToObjectPage(obj.id)}>
+								<img src="edit.svg" style="margin-right: 38px;" class="edit" alt="edit" />
+							</button>
+							<button on:click={() => deleteEvent(obj.id)}>
+								<img src="trash.svg" class="trash" alt="trash" /></button
+							>
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	{:else if activeButton === "events_main"}
+		<h1>Мероприятия</h1>
+		<div class="container">
+			<div class="controls">
+				<div class="dropdown">
+					<select>
+						<option>Выбрать категорию</option>
+					</select>
+				</div>
+				<div class="dropdown">
+					<select>
+						<option>Формат проведения</option>
+					</select>
+				</div>
+				<input type="text" placeholder="Поиск" />
+			</div>
+		</div>
+		<table>
+			<tbody>
+				{#each objects as obj (obj.id)}
+					<tr>
+						<td>{obj.start_datetime}</td>
+						<td class="event-tag">{obj.name}</td>
+						<td>
+							<button on:click={() => goToObjectPageMore(obj.id)}>Перейти →</button>
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	{/if}
 </main>
 
 <style>
+	.controls {
+		display: flex;
+		gap: 10px;
+		align-items: center;
+		margin-bottom: 20px;
+	}
+
+	.controls input {
+		flex-grow: 1;
+		padding: 5px 10px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+	}
+
+	.controls .dropdown select {
+		padding: 8px;
+		border: none;
+		border-radius: 4px;
+		background-color: white;
+		cursor: pointer;
+	}
+
+	main {
+		margin-left: 60px;
+		margin-right: 60px;
+	}
 	header {
 		margin-top: 25px;
 		margin-left: 23px;
 		margin-right: 23px;
 		padding: 18px 37px;
-		background: linear-gradient(to right, #fccdcd, #c8aae7);
+		background: linear-gradient(to right, rgba(252, 205, 205, 1), rgba(200, 170, 231, 1));
 		border-radius: 60px;
-		height: 91;
 	}
 	.header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 	}
+	.container {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	option {
+		border: none;
+		appearance: none;
+	}
 	.logo {
-		margin-top: 7.5;
-		margin-bottom: 7.5;
-		margin-left: 19;
+		margin-top: 7.5px;
+		margin-bottom: 7.5px;
+		margin-left: 19px;
 	}
 	.nav-btn {
+		background: none;
+		border: none;
+		border-radius: 40px;
+		padding: 10px 20px;
+		cursor: pointer;
+		font-weight: 500px;
+        font-family: "ttnormspro-regular", sans-serif;
+        font-size: 18px; 
+	}
+	.nav-btn.active {
 		background: white;
 		border: none;
 		border-radius: 40px;
@@ -131,7 +235,7 @@
 	.avatar {
 		margin-left: 16px;
 	}
-	.event-tag {
+	/* .event-tag {
 		position: absolute;
 		top: 23;
 		left: 23;
@@ -140,5 +244,60 @@
 		padding: 7px 23px;
 		font-size: 12px;
 		border-radius: 20;
+	} */
+
+	h1 {
+		color: rgba(60, 51, 64, 1);
+		font-family: "cygre-medium", sans-serif;
+		margin-bottom: 28px;
 	}
+	.goAdd {
+		background: linear-gradient(135deg, rgba(250, 202, 206, 0.5), rgba(200, 170, 231, 0.5));
+		border: none;
+		padding: 13px;
+		color: rgba(60, 51, 64, 1);
+		border-radius: 20px;
+		font-size: 18px;
+		cursor: pointer;
+		transition:
+			transform 0.3s,
+			box-shadow 0.3s;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-top: 3px;
+	}
+	.super_title {
+		background: linear-gradient(135deg, rgba(250, 202, 206, 0.5), rgba(200, 170, 231, 0.5));
+		margin-top: 22px;
+		height: 73px;
+		border-radius: 50px;
+	}
+	table tr {
+		padding: 17px 90px;
+		text-align: left;
+		font-size: 22px;
+		margin-right: 80px;
+	}
+	table td {
+		padding: 17px 29px;
+		text-align: left;
+		border-bottom: 2px solid #787878;
+		font-size: 22px;
+	}
+	.filter-bar input {
+		height: 24px;
+	}
+	.filter-bar option {
+		height: 24px;
+	}
+	.back{
+		background: none;
+		padding: 0px;
+	}
+	button {
+		background: none;
+		border: none;}
 </style>
