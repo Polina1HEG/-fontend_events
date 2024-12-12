@@ -66,7 +66,7 @@
 					</div>
 					<p><a href="#">Забыли пароль?</a></p>
 				</form>
-				<img src="el.svg" class="el" alt="element"/>
+				<img src="el.svg" class="el" alt="element" />
 			</div>
 		{/if}
 
@@ -77,7 +77,7 @@
 					<div class="form-e">
 						<input id="surname" type="text" placeholder="Фамилия" required />
 						<input id="name" type="text" placeholder="Имя" required />
-						<input required type="text" class="form-control" placeholder="Возраст"/>
+						<input required type="text" class="form-control" placeholder="Возраст" />
 						<input id="group" type="text" placeholder="Группа" required />
 
 						<button type="button" on:click={nextStep}>Далее →</button>
@@ -87,7 +87,8 @@
 			{#if step === 2}
 				<form>
 					<button class="back" on:click={lastStep}>
-					<img src="Стрелка.svg" class="back" alt="back"/></button>
+						<img src="Стрелка.svg" class="back" alt="back" /></button
+					>
 					<div class="form-e">
 						<input id="reg-email" type="email" placeholder="Email" bind:value={username} required />
 						<input
@@ -223,7 +224,7 @@
 		background: url(/calendar.svg) no-repeat center;
 		background-size: contain;
 	}
-	.back{
+	.back {
 		background: none;
 		padding: 0px;
 	}

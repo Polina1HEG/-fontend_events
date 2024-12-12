@@ -40,7 +40,7 @@
 
 	async function deleteEvent(id: number) {
 		try {
-			const response = await fetch(`${apiUrl}${id}`, {
+			const response = await fetch(`${apiUrl}/${id}`, {
 				method: "DELETE",
 				headers: { "Content-Type": "application/json" }
 			});
@@ -88,21 +88,20 @@
 						<option>Формат проведения</option>
 					</select>
 				</div>
-				<input type="text" placeholder="Поиск" />
+				<img src="search.svg" alt="Поиск" />
+				<input type="text" placeholder="Поиск" style="border: none;" />
 			</div>
 			<button on:click={goToAddPage} class="goAdd">+ Добавить событие</button>
 		</div>
-		<table class="super_title">
-			<thead>
+		<table>
+			<thead class="super_title">
 				<tr>
-					<th>Название</th>
+					<th style="border-radius: 50px 0 0 50px;">Название</th>
 					<th>Дата события</th>
 					<th>Статус</th>
-					<th>Изменить</th>
+					<th style="border-radius: 0px 50px 50px 0px;">Изменить</th>
 				</tr>
 			</thead>
-		</table>
-		<table>
 			<tbody>
 				{#each objects as obj (obj.id)}
 					<tr>
@@ -139,17 +138,22 @@
 						<option>Формат проведения</option>
 					</select>
 				</div>
-				<input type="text" placeholder="Поиск" />
+				<img src="search.svg" alt="Поиск" />
+				<input type="text" placeholder="Поиск" style="border: none;" />
 			</div>
 		</div>
 		<table>
 			<tbody>
 				{#each objects as obj (obj.id)}
 					<tr>
-						<td>{obj.start_datetime}</td>
-						<td class="event-tag">{obj.name}</td>
+						<td style="weight=114px; font-sizt: 20px;">{obj.start_datetime}</td>
+						<td
+							class="event-tag"
+							style="text-align: center; weight=400px; font-sizt: 34px; color: rgba(0, 0, 0, 1)"
+							>{obj.name}</td
+						>
 						<td>
-							<button on:click={() => goToObjectPageMore(obj.id)}>Перейти →</button>
+							<button on:click={() => goToObjectPageMore(obj.id)} class="GOto">Перейти →</button>
 						</td>
 					</tr>
 				{/each}
@@ -184,6 +188,8 @@
 	main {
 		margin-left: 60px;
 		margin-right: 60px;
+		font-family: "ttnormspro-regular", sans-serif;
+		color: rgba(102, 102, 102, 1);
 	}
 	header {
 		margin-top: 25px;
@@ -219,8 +225,8 @@
 		padding: 10px 20px;
 		cursor: pointer;
 		font-weight: 500px;
-        font-family: "ttnormspro-regular", sans-serif;
-        font-size: 18px; 
+		font-family: "ttnormspro-regular", sans-serif;
+		font-size: 18px;
 	}
 	.nav-btn.active {
 		background: white;
@@ -235,17 +241,6 @@
 	.avatar {
 		margin-left: 16px;
 	}
-	/* .event-tag {
-		position: absolute;
-		top: 23;
-		left: 23;
-		background: #d9d9d9;
-		color: #666666;
-		padding: 7px 23px;
-		font-size: 12px;
-		border-radius: 20;
-	} */
-
 	h1 {
 		color: rgba(60, 51, 64, 1);
 		font-family: "cygre-medium", sans-serif;
@@ -273,31 +268,35 @@
 		background: linear-gradient(135deg, rgba(250, 202, 206, 0.5), rgba(200, 170, 231, 0.5));
 		margin-top: 22px;
 		height: 73px;
-		border-radius: 50px;
+		padding: 80.5px;
+		text-align: center;
 	}
 	table tr {
 		padding: 17px 90px;
-		text-align: left;
+		text-align: center;
 		font-size: 22px;
 		margin-right: 80px;
 	}
 	table td {
 		padding: 17px 29px;
-		text-align: left;
+		text-align: center;
 		border-bottom: 2px solid #787878;
 		font-size: 22px;
 	}
-	.filter-bar input {
-		height: 24px;
+	td select {
+		border: 2px solid rgba(120, 120, 120, 0.8);
+		border-radius: 10px;
+		padding: 9px 19px;
 	}
-	.filter-bar option {
-		height: 24px;
-	}
-	.back{
-		background: none;
-		padding: 0px;
-	}
+
 	button {
 		background: none;
-		border: none;}
+		border: none;
+	}
+
+	.GOto {
+		border: 2px solid rgba(250, 202, 206, 0.5);
+		padding: 9px 47.75px;
+		border-radius: 20px;
+	}
 </style>
